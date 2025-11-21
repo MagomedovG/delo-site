@@ -28,6 +28,7 @@ import {
   User,
   Loader2
 } from "lucide-react";
+import { useAuthFetchWithBase } from "@/hooks/useAuthFetchWithBase";
 
 interface TaskDetailData {
   id: string;
@@ -55,25 +56,25 @@ interface ApiResponse {
 }
 
 // Моковые данные для fallback
-const mockTaskDetail: TaskDetailData = {
-  id: "0d813dd6-3187-41ca-91c0-33b40d42a2c0",
-  title: "Задача про",
-  description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos mollitia deleniti quidem officiis eum qui quisquam, praesentium recusandae quibusdam sed dolores magnam dolorem sint quaerat aut at delectus nemo? Excepturi?",
-  budgetMin: 1000,
-  budgetMax: 2000,
-  categoryId: "4ba5ef78-7e2e-4652-bd49-4a22c6351c08",
-  categoryName: "Бухгалтерия",
-  location: "На поселке",
-  deadline: "2025-12-01T21:00:00.000Z",
-  status: "open",
-  posterId: "782dd693-311a-49a5-b724-c7aade8dfc4e",
-  posterName: "MagomedovG",
-  posterAvatar: null,
-  posterRating: 0,
-  offersCount: 0,
-  createdAt: "2025-11-20T23:17:07.334Z",
-  updatedAt: "2025-11-20T23:17:07.334Z"
-};
+// const mockTaskDetail: TaskDetailData = {
+//   id: "0d813dd6-3187-41ca-91c0-33b40d42a2c0",
+//   title: "Задача про",
+//   description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos mollitia deleniti quidem officiis eum qui quisquam, praesentium recusandae quibusdam sed dolores magnam dolorem sint quaerat aut at delectus nemo? Excepturi?",
+//   budgetMin: 1000,
+//   budgetMax: 2000,
+//   categoryId: "4ba5ef78-7e2e-4652-bd49-4a22c6351c08",
+//   categoryName: "Бухгалтерия",
+//   location: "На поселке",
+//   deadline: "2025-12-01T21:00:00.000Z",
+//   status: "open",
+//   posterId: "782dd693-311a-49a5-b724-c7aade8dfc4e",
+//   posterName: "MagomedovG",
+//   posterAvatar: null,
+//   posterRating: 0,
+//   offersCount: 0,
+//   createdAt: "2025-11-20T23:17:07.334Z",
+//   updatedAt: "2025-11-20T23:17:07.334Z"
+// };
 
 interface TaskDetailProps {
   taskId: string;
@@ -89,7 +90,7 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
   const [offerPrice, setOfferPrice] = useState("");
   const [offerDescription, setOfferDescription] = useState("");
   const [offerTime, setOfferTime] = useState("");
-
+  const authFetch = useAuthFetchWithBase();
   // Загрузка данных задачи
   useEffect(() => {
     const fetchTask = async () => {
@@ -97,7 +98,7 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
         setLoading(true);
         setError(null);
         
-        const response = await fetch(`/api/tasks/${taskId}`);
+        const response = await authFetch(`/tasks/${taskId}`);
         
         if (!response.ok) {
           throw new Error(`Ошибка загрузки: ${response.status}`);
@@ -114,7 +115,7 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
         console.error("Ошибка загрузки задачи:", err);
         setError(err instanceof Error ? err.message : "Произошла ошибка при загрузке");
         // В случае ошибки используем моковые данные для демонстрации
-        setTask(mockTaskDetail);
+        // setTask(mockTaskDetail);
       } finally {
         setLoading(false);
       }

@@ -128,7 +128,9 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
       return;
     }
     try {
-      const response = await fetch(`http://185.244.22.130:8000/api/v1/users/782dd693-311a-49a5-b724-c7aade8dfc4e`, {
+      // const response = await fetch(`http://185.244.22.130:8000/api/v1/users/782dd693-311a-49a5-b724-c7aade8dfc4e`, 
+      const response = await fetch(`http://185.244.22.130:8000/api/v1/auth/me`, 
+        {
         method: "GET",
         headers:{
           "Authorization": `Bearer ${token}`

@@ -6,6 +6,7 @@ import { OnboardingFeatures } from "@/components/OnboardingFeatures";
 import { OnboardingRoleSelection } from "@/components/OnboardingRoleSelection";
 import { OnboardingComplete } from "@/components/OnboardingComplete";
 import { useApp } from "@/context/AppContext";
+import { useAuthFetchWithBase } from "@/hooks/useAuthFetchWithBase";
 
 type Step = "welcome" | "features" | "role" | "complete";
 
@@ -13,7 +14,13 @@ export default function OnboardingPage() {
   const [step, setStep] = useState<Step>("welcome");
   const router = useRouter();
   const { selectedRole, setSelectedRole } = useApp();
+  const authFetch = useAuthFetchWithBase();
 
+   const completeOnboarding = async () => {
+    return authFetch('/auth/complete-onboarding', {
+      method: 'POST',
+    });
+  };
   if (step === "welcome") return <OnboardingWelcome onNext={() => setStep("features")} />;
   if (step === "features") return <OnboardingFeatures onNext={() => setStep("role")} onBack={() => setStep("welcome")} />;
   if (step === "role")
@@ -30,7 +37,10 @@ export default function OnboardingPage() {
     return (
       <OnboardingComplete
         role={selectedRole}
-        onComplete={() => router.push("/home")}
+        onComplete={() => {
+          completeOnboarding()
+          router.push("/home")
+        }}
         onBack={() => setStep("role")}
       />
     );

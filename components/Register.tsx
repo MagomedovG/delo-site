@@ -31,7 +31,7 @@ interface RegisterResponse {
 
 export function Register({ onRegister, onGoToLogin }: RegisterProps) {
   const [name, setName] = useState("MagomedovG");
-  const [email, setEmail] = useState("mgmdvgg@mail.ru");
+  const [email, setEmail] = useState("gamzat9953@gmail.com");
   const [password, setPassword] = useState("gamzatgamzat");
   const [confirmPassword, setConfirmPassword] = useState("gamzatgamzat");
   const [showPassword, setShowPassword] = useState(false);
@@ -88,7 +88,7 @@ export function Register({ onRegister, onGoToLogin }: RegisterProps) {
     setErrors({});
 
     try {
-      const response = await authFetch(`${BASE_URL}/auth/register`, {
+      const response = await authFetch(`/auth/register`, {
         method: "POST",
         body: JSON.stringify({
           name: name.trim(),

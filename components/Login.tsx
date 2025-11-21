@@ -7,7 +7,7 @@ import { Label } from "./ui/label";
 import { Checkbox } from "./ui/checkbox";
 import { Eye, EyeOff, LogIn } from "lucide-react";
 interface LoginProps {
-  onLogin: (email: string, password: string) => void;
+  onLogin: (email: string, password: string, hasCompletedOnboarding:boolean) => void;
   onGoToRegister: () => void;
 }
 
@@ -24,6 +24,7 @@ interface LoginResponse {
       rating: number;
       reviewsCount: number;
       completedTasks: number;
+      hasCompletedOnboarding:boolean
     };
     accessToken: string;
     refreshToken:string;
@@ -112,7 +113,7 @@ export function Login({ onLogin, onGoToRegister }: LoginProps) {
         }
         
         // Вызываем колбэк onLogin
-        onLogin(email, password);
+        onLogin(email, password, data?.data?.user.hasCompletedOnboarding);
       } else {
         // Ошибка аутентификации
         setErrors({ 

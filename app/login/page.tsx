@@ -7,10 +7,14 @@ export default function LoginPage() {
   const router = useRouter();
   const { setIsAuthenticated } = useApp();
 
-  const handleLogin = (email: string, password: string) => {
+  const handleLogin = (email: string, password: string, hasCompletedOnboarding:boolean) => {
     console.log("Login:", { email, password });
     setIsAuthenticated(true);
-    router.push("/onboarding");
+    if (hasCompletedOnboarding){
+      router.push("/home");
+    } else {
+      router.push("/onboarding");
+    }
   };
 
   return (

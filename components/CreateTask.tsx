@@ -65,7 +65,7 @@ interface CreateTaskResponse {
 
 interface TaskFormData {
   title: string;
-  category: string;
+  category_id: string;
   description: string;
   budgetType: "fixed" | "hourly" | "range" | "negotiable";
   budgetAmount: number | null;
@@ -216,8 +216,8 @@ export function CreateTask({ onBack, onSubmit }: CreateTaskProps) {
         category_id:category,
         description: description.trim(),
         budgetType,
-        budget_min: budgetType !== "negotiable" ? parseInt(budgetAmount) : 3000,
-        budget_max: budgetType === "range" ? parseInt(budgetMax) : 3000,
+        budget_min: budgetType !== "negotiable" ? parseInt(budgetAmount) : null,
+        budget_max: budgetType === "range" ? parseInt(budgetMax) : null,
         deadline: deadline ? deadline.toISOString() : "",
         location: location.trim(),
         // locationCoords:{
