@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import LogoutButton from "./LogoutButton";
 
 interface Category {
   id: string;
@@ -159,6 +160,7 @@ export function HomePage({
               <Button variant="ghost" size="sm" onClick={onViewProfile}>
                 Профиль
               </Button>
+              <LogoutButton/>
             </div>
           </div>
 

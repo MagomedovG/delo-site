@@ -12,8 +12,9 @@ interface AppContextType {
   selectedCategory: Category;
   setSelectedCategory: (c: Category) => void;
   selectedTaskId: string | null;
+  currentUserId:string | null;
   setSelectedTaskId: (id: string | null) => void;
-  currentUserId: string;
+  setCurrentUserId: (id: string | null) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -23,8 +24,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [selectedRole, setSelectedRole] = useState<UserRole>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category>(null);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-
-  const currentUserId = "user1";
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   return (
     <AppContext.Provider
@@ -38,6 +38,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         selectedTaskId,
         setSelectedTaskId,
         currentUserId,
+        setCurrentUserId,
       }}
     >
       {children}

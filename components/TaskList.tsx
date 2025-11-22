@@ -205,11 +205,14 @@ export function TaskList({ categoryId, categoryName, onBack, onTaskClick }: Task
     if (task.priceType === "negotiable") {
       return "Договорная";
     }
-    if (task.priceType === "range" && task.budgetAmount && task.budgetMax) {
-      return `₽${task.budgetAmount?.toLocaleString()} - ₽${task.budgetMax.toLocaleString()}`;
+    if (task.budgetMax && task.budgetMin && task.budgetMax !== task.budgetMin) {
+      return `₽${task.budgetMin?.toLocaleString()} - ${task.budgetMax.toLocaleString()}`;
     }
     if (task.priceType === "hourly") {
       return `₽${task.price?.toLocaleString()}/час`;
+    }
+    if( task.budgetMax === task.budgetMin && task.budgetMax === task.budgetMin){
+      `₽${task.budgetMin} фикс`
     }
     return `₽${task.price?.toLocaleString()}`;
   };
@@ -372,7 +375,7 @@ export function TaskList({ categoryId, categoryName, onBack, onTaskClick }: Task
                       </div>
                       <div className="text-right">
                         <div className="flex items-center gap-1 text-blue-600">
-                          <DollarSign className="h-4 w-4" />
+                          {/* <DollarSign className="h-4 w-4" /> */}
                           <span className="text-xl">{getPriceDisplay(task)}</span>
                         </div>
                         <span className="text-xs text-gray-500">

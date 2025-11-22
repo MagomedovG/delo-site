@@ -8,7 +8,7 @@ export default function CreateTaskPage() {
   const handleSubmitTask = (taskData: any) => {
     console.log("Task submitted:", taskData);
     alert("Задача успешно опубликована!");
-    router.push("/home");
+    // router.push("/home");
   };
 
   return (

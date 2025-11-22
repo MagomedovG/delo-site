@@ -5,11 +5,12 @@ import { useApp } from "@/context/AppContext";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { setIsAuthenticated } = useApp();
+  const { setIsAuthenticated, setCurrentUserId } = useApp();
 
-  const handleLogin = (email: string, password: string, hasCompletedOnboarding:boolean) => {
-    console.log("Login:", { email, password });
+  const handleLogin = (email: string, password: string, hasCompletedOnboarding:boolean, currentUserId:string) => {
+    // console.log("Login:", { email, password });
     setIsAuthenticated(true);
+    setCurrentUserId(currentUserId)
     if (hasCompletedOnboarding){
       router.push("/home");
     } else {

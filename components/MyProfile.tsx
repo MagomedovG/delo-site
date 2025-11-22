@@ -113,13 +113,10 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
     return Cookies.get('access');
   };
 
-  // Получение токена из localStorage
-  // const getAuthToken = () => {
-  //   return localStorage.getItem("authToken") || sessionStorage.getItem("authToken");
-  // };
+ 
   const authFetch = useAuthFetchWithBase();
   const token = Cookies.get('access');
-  // Загрузка данных профиля
+
   const fetchUserData = async () => {
     const token = getAuthToken();
     if (!token) {
@@ -129,12 +126,9 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
     }
     try {
       // const response = await fetch(`http://185.244.22.130:8000/api/v1/users/782dd693-311a-49a5-b724-c7aade8dfc4e`, 
-      const response = await fetch(`http://185.244.22.130:8000/api/v1/auth/me`, 
+      const response = await authFetch(`/auth/me`, 
         {
         method: "GET",
-        headers:{
-          "Authorization": `Bearer ${token}`
-        }
       });
 
       if (!response.ok) {
@@ -219,11 +213,7 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
       console.error("Ошибка при загрузке отзывов:", err);
     }
   };
-  const getUserId = async () => {
-    const myId = await localStorage.getItem('user')
-    // console.log(JSON.parse(myId).id)
-    setUserId(JSON.parse(myId).id)
-  }
+
   // Загрузка всех данных при монтировании компонента
   useEffect(() => {
      
@@ -233,7 +223,6 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
       
       try {
         await Promise.all([
-          getUserId(),
           fetchUserData(),
           // fetchMyTasks(),
           // fetchMyOffers(),

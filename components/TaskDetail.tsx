@@ -55,26 +55,20 @@ interface ApiResponse {
   data: TaskDetailData;
 }
 
-// Моковые данные для fallback
-// const mockTaskDetail: TaskDetailData = {
-//   id: "0d813dd6-3187-41ca-91c0-33b40d42a2c0",
-//   title: "Задача про",
-//   description: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos mollitia deleniti quidem officiis eum qui quisquam, praesentium recusandae quibusdam sed dolores magnam dolorem sint quaerat aut at delectus nemo? Excepturi?",
-//   budgetMin: 1000,
-//   budgetMax: 2000,
-//   categoryId: "4ba5ef78-7e2e-4652-bd49-4a22c6351c08",
-//   categoryName: "Бухгалтерия",
-//   location: "На поселке",
-//   deadline: "2025-12-01T21:00:00.000Z",
-//   status: "open",
-//   posterId: "782dd693-311a-49a5-b724-c7aade8dfc4e",
-//   posterName: "MagomedovG",
-//   posterAvatar: null,
-//   posterRating: 0,
-//   offersCount: 0,
-//   createdAt: "2025-11-20T23:17:07.334Z",
-//   updatedAt: "2025-11-20T23:17:07.334Z"
-// };
+interface OfferResponse {
+  success: boolean;
+  message: string;
+  data: {
+    id: string;
+    taskId: string;
+    taskerId: string;
+    price: number;
+    description: string;
+    estimatedTime: string;
+    status: "pending";
+    createdAt: string;
+  };
+}
 
 interface TaskDetailProps {
   taskId: string;
@@ -88,9 +82,14 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
   const [error, setError] = useState<string | null>(null);
   const [isOfferDialogOpen, setIsOfferDialogOpen] = useState(false);
   const [offerPrice, setOfferPrice] = useState("");
-  const [offerDescription, setOfferDescription] = useState("");
+  const [offerDescription, setOfferDescription] = useState(" Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos mollitia deleniti quidem officiis eum qui quisquam, praesentium recusandae quibusdam sed dolores magnam dolorem sint quaerat aut at delectus nemo? Excepturi?");
   const [offerTime, setOfferTime] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [offerError, setOfferError] = useState<string | null>(null);
+  const [offerSuccess, setOfferSuccess] = useState(false);
+  
   const authFetch = useAuthFetchWithBase();
+
   // Загрузка данных задачи
   useEffect(() => {
     const fetchTask = async () => {
@@ -114,8 +113,6 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
       } catch (err) {
         console.error("Ошибка загрузки задачи:", err);
         setError(err instanceof Error ? err.message : "Произошла ошибка при загрузке");
-        // В случае ошибки используем моковые данные для демонстрации
-        // setTask(mockTaskDetail);
       } finally {
         setLoading(false);
       }
@@ -168,37 +165,76 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
       .slice(0, 2);
   };
 
+  const validateOffer = () => {
+    const errors: string[] = [];
+
+    if (!offerPrice || parseInt(offerPrice) <= 0) {
+      errors.push("Цена должна быть больше 0");
+    }
+
+    if (!offerDescription || offerDescription.length < 20) {
+      errors.push("Описание должно содержать минимум 20 символов");
+    }
+
+    if (!offerTime) {
+      errors.push("Укажите время выполнения");
+    }
+
+    return errors;
+  };
+
   const handleSubmitOffer = async () => {
+    const validationErrors = validateOffer();
+    if (validationErrors.length > 0) {
+      setOfferError(validationErrors.join(", "));
+      return;
+    }
+
+    setSubmitting(true);
+    setOfferError(null);
+
     try {
-      // Здесь будет логика отправки отклика на бэкенд
-      console.log("Submitting offer:", { 
-        taskId, 
-        price: offerPrice, 
-        description: offerDescription, 
-        time: offerTime 
+      const response = await authFetch(`/tasks/${taskId}/offers`, {
+        method: "POST",
+        body: JSON.stringify({
+          price: parseInt(offerPrice),
+          description: offerDescription.trim(),
+          estimatedTime: offerTime.trim()
+        })
       });
-      
-      // Пример отправки на бэкенд:
-      // const response = await fetch(`/api/tasks/${taskId}/offers`, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify({
-      //     price: parseInt(offerPrice),
-      //     description: offerDescription,
-      //     estimatedTime: offerTime
-      //   })
-      // });
-      
-      setIsOfferDialogOpen(false);
-      setOfferPrice("");
-      setOfferDescription("");
-      setOfferTime("");
-      
-      // Можно добавить уведомление об успешной отправке
+
+      if (response.status === 201) {
+        const result: OfferResponse = await response.json();
+        
+        if (result.success) {
+          setOfferSuccess(true);
+          setIsOfferDialogOpen(false);
+          setOfferPrice("");
+          setOfferDescription("");
+          setOfferTime("");
+          
+          // Можно показать уведомление об успехе
+          console.log("Отклик успешно отправлен:", result.data);
+          
+          // Обновляем счетчик откликов
+          if (task) {
+            setTask({
+              ...task,
+              offersCount: task.offersCount + 1
+            });
+          }
+        } else {
+          setOfferError(result.message || "Ошибка при отправке отклика");
+        }
+      } else {
+        const errorData = await response.json();
+        setOfferError(errorData.message || `Ошибка сервера: ${response.status}`);
+      }
     } catch (err) {
       console.error("Ошибка при отправке отклика:", err);
+      setOfferError("Ошибка сети. Проверьте подключение к интернету.");
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -210,6 +246,14 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
       );
     }
   };
+
+  // Сброс состояния при открытии/закрытии диалога
+  useEffect(() => {
+    if (isOfferDialogOpen) {
+      setOfferError(null);
+      setOfferSuccess(false);
+    }
+  }, [isOfferDialogOpen]);
 
   // Состояние загрузки
   if (loading) {
@@ -437,7 +481,7 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
-                    <label className="text-sm">Ваша цена (₽)</label>
+                    <label className="text-sm">Ваша цена (₽) <span className="text-red-500">*</span></label>
                     <Input
                       type="number"
                       placeholder="1500"
@@ -445,44 +489,68 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
                       onChange={(e) => setOfferPrice(e.target.value)}
                       min={task.budgetMin}
                       max={task.budgetMax}
+                      disabled={submitting}
                     />
                     <p className="text-xs text-gray-500">
                       Бюджет заказчика: ₽{task.budgetMin} - ₽{task.budgetMax}
                     </p>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm">Время выполнения</label>
+                    <label className="text-sm">Время выполнения <span className="text-red-500">*</span></label>
                     <Input
                       type="text"
                       placeholder="например: 3-4 часа"
                       value={offerTime}
                       onChange={(e) => setOfferTime(e.target.value)}
+                      disabled={submitting}
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm">Комментарий</label>
+                    <label className="text-sm">Комментарий <span className="text-red-500">*</span></label>
                     <Textarea
-                      placeholder="Расскажите о своём опыте и подходе к выполнению задачи..."
+                      placeholder="Расскажите о своём опыте и подходе к выполнению задачи (минимум 20 символов)..."
                       value={offerDescription}
                       onChange={(e) => setOfferDescription(e.target.value)}
                       rows={5}
+                      disabled={submitting}
                     />
+                    <p className="text-xs text-gray-500">
+                      {offerDescription.length}/20 символов
+                    </p>
                   </div>
+
+                  {/* Ошибка отправки */}
+                  {offerError && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+                      <p className="text-sm text-red-600">{offerError}</p>
+                    </div>
+                  )}
                 </div>
                 <div className="flex gap-3">
                   <Button
                     variant="outline"
                     onClick={() => setIsOfferDialogOpen(false)}
                     className="flex-1"
+                    disabled={submitting}
                   >
                     Отмена
                   </Button>
                   <Button
                     onClick={handleSubmitOffer}
                     className="flex-1 bg-blue-600 hover:bg-blue-700"
-                    disabled={!offerPrice || !offerDescription}
+                    disabled={!offerPrice || !offerDescription || !offerTime || submitting}
                   >
-                    Отправить отклик
+                    {submitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Отправка...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4 mr-2" />
+                        Отправить отклик
+                      </>
+                    )}
                   </Button>
                 </div>
               </DialogContent>

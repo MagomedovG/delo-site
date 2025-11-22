@@ -67,9 +67,10 @@ interface TaskFormData {
   title: string;
   category_id: string;
   description: string;
-  budgetType: "fixed" | "hourly" | "range" | "negotiable";
-  budgetAmount: number | null;
-  budgetMax: number | null;
+  budget_type: "fixed" | "hourly" | "range" | "negotiable";
+  budget_min?: number;
+  budget_max?: number;
+  hourly_rate?: number;
   deadline: string;
   location: string;
   locationCoords?: {
@@ -85,8 +86,9 @@ export function CreateTask({ onBack, onSubmit }: CreateTaskProps) {
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("Lorem ipsum dolor sit amet consectetur adipisicing elit. Quos mollitia deleniti quidem officiis eum qui quisquam, praesentium recusandae quibusdam sed dolores magnam dolorem sint quaerat aut at delectus nemo? Excepturi?");
   const [budgetType, setBudgetType] = useState<"fixed" | "hourly" | "range" | "negotiable">("fixed");
-  const [budgetAmount, setBudgetAmount] = useState("3000");
+  const [budgetMin, setBudgetMin] = useState("3000");
   const [budgetMax, setBudgetMax] = useState("");
+  const [hourlyRate, setHourlyRate] = useState("");
   const [deadline, setDeadline] = useState<Date>();
   const [location, setLocation] = useState("На поселке");
   const [isLoading, setIsLoading] = useState(false);
@@ -95,6 +97,7 @@ export function CreateTask({ onBack, onSubmit }: CreateTaskProps) {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const authFetch = useAuthFetchWithBase()
+
   // Получение токена авторизации из куки
   const getAuthToken = () => {
     return Cookies.get('access');
@@ -128,6 +131,23 @@ export function CreateTask({ onBack, onSubmit }: CreateTaskProps) {
     fetchCategories();
   }, []);
 
+  // Сброс полей бюджета при смене типа
+  useEffect(() => {
+    if (budgetType === "negotiable") {
+      setBudgetMin("");
+      setBudgetMax("");
+      setHourlyRate("");
+    } else if (budgetType === "hourly") {
+      setBudgetMin("");
+      setBudgetMax("");
+    } else if (budgetType === "fixed") {
+      setBudgetMax("");
+      setHourlyRate("");
+    } else if (budgetType === "range") {
+      setHourlyRate("");
+    }
+  }, [budgetType]);
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
 
@@ -152,20 +172,30 @@ export function CreateTask({ onBack, onSubmit }: CreateTaskProps) {
       newErrors.description = "Описание должно содержать минимум 50 символов";
     }
 
-    // Валидация бюджета
-    if (budgetType !== "negotiable") {
-      if (!budgetAmount) {
-        newErrors.budgetAmount = "Укажите бюджет";
-      } else if (parseInt(budgetAmount) <= 0) {
-        newErrors.budgetAmount = "Бюджет должен быть больше 0";
+    // Валидация бюджета в зависимости от типа
+    if (budgetType === "fixed") {
+      if (!budgetMin) {
+        newErrors.budgetMin = "Укажите бюджет";
+      } else if (parseInt(budgetMin) <= 0) {
+        newErrors.budgetMin = "Бюджет должен быть больше 0";
       }
-
-      if (budgetType === "range") {
-        if (!budgetMax) {
-          newErrors.budgetMax = "Укажите максимальный бюджет";
-        } else if (parseInt(budgetMax) <= parseInt(budgetAmount)) {
-          newErrors.budgetMax = "Максимальный бюджет должен быть больше минимального";
-        }
+    } else if (budgetType === "hourly") {
+      if (!hourlyRate) {
+        newErrors.hourlyRate = "Укажите почасовую ставку";
+      } else if (parseInt(hourlyRate) <= 0) {
+        newErrors.hourlyRate = "Ставка должна быть больше 0";
+      }
+    } else if (budgetType === "range") {
+      if (!budgetMin) {
+        newErrors.budgetMin = "Укажите минимальный бюджет";
+      } else if (parseInt(budgetMin) <= 0) {
+        newErrors.budgetMin = "Минимальный бюджет должен быть больше 0";
+      }
+      
+      if (!budgetMax) {
+        newErrors.budgetMax = "Укажите максимальный бюджет";
+      } else if (parseInt(budgetMax) <= parseInt(budgetMin || "0")) {
+        newErrors.budgetMax = "Максимальный бюджет должен быть больше минимального";
       }
     }
 
@@ -201,38 +231,38 @@ export function CreateTask({ onBack, onSubmit }: CreateTaskProps) {
       setIsLoading(false);
       return;
     }
-    // const requestData = {
-    //   category_id: taskData.category,
-    //   title: taskData.title,
-    //   description: taskData.description,
-    //   budget_min: budget,
-    //   budget_max: budget,
-    //   location: taskData.location || undefined,
-    // };
+    
     try {
-      // Подготовка данных для отправки
+      // Формируем данные в зависимости от типа бюджета
       const taskData: TaskFormData = {
         title: title.trim(),
-        category_id:category,
+        category_id: category,
         description: description.trim(),
-        budgetType,
-        budget_min: budgetType !== "negotiable" ? parseInt(budgetAmount) : null,
-        budget_max: budgetType === "range" ? parseInt(budgetMax) : null,
+        budget_type: budgetType,
         deadline: deadline ? deadline.toISOString() : "",
         location: location.trim(),
-        // locationCoords:{
-        //   lat: 55.6333,
-        //   lng: 37.6000
-        // }
       };
+
+      // Добавляем специфичные поля бюджета
+      if (budgetType === "fixed") {
+        taskData.budget_min = parseInt(budgetMin);
+        taskData.budget_max = parseInt(budgetMin); // Для фиксированного бюджета min = max
+      } else if (budgetType === "hourly") {
+        taskData.hourly_rate = parseInt(hourlyRate);
+      } else if (budgetType === "range") {
+        taskData.budget_min = parseInt(budgetMin);
+        taskData.budget_max = parseInt(budgetMax);
+      }
+      // Для negotiable не добавляем никаких полей бюджета
+
+      console.log("Отправляемые данные:", JSON.stringify(taskData, null, 2));
 
       // Отправка запроса на создание задачи
       const response = await authFetch(`/tasks`, {
         method: "POST",
         body: JSON.stringify(taskData),
-        // credentials:'include'
       });
-      console.log(JSON.stringify(taskData))
+
       const data: CreateTaskResponse = await response.json();
 
       if (response.status === 201 && data.success) {
@@ -391,10 +421,13 @@ export function CreateTask({ onBack, onSubmit }: CreateTaskProps) {
                 value={budgetType} 
                 onValueChange={(value: any) => {
                   setBudgetType(value);
-                  setBudgetAmount("");
-                  setBudgetMax("");
-                  if (errors.budgetAmount || errors.budgetMax) {
-                    setErrors({ ...errors, budgetAmount: "", budgetMax: "" });
+                  if (errors.budgetMin || errors.budgetMax || errors.hourlyRate) {
+                    setErrors({ 
+                      ...errors, 
+                      budgetMin: "", 
+                      budgetMax: "", 
+                      hourlyRate: "" 
+                    });
                   }
                 }}
                 disabled={isLoading}
@@ -469,66 +502,77 @@ export function CreateTask({ onBack, onSubmit }: CreateTaskProps) {
                     <div className="grid grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="budgetMin">От (₽)</Label>
-                        <div className="relative">
-                          <Input
-                            id="budgetMin"
-                            type="number"
-                            placeholder="1000"
-                            value={budgetAmount}
-                            onChange={(e) => {
-                              setBudgetAmount(e.target.value);
-                              if (errors.budgetAmount) setErrors({ ...errors, budgetAmount: "" });
-                            }}
-                            className={errors.budgetAmount ? "border-red-500 pr-10" : "pr-10"}
-                            disabled={isLoading}
-                          />
-                        </div>
-                        {errors.budgetAmount && (
-                          <p className="text-sm text-red-500">{errors.budgetAmount}</p>
+                        <Input
+                          id="budgetMin"
+                          type="number"
+                          placeholder="1000"
+                          value={budgetMin}
+                          onChange={(e) => {
+                            setBudgetMin(e.target.value);
+                            if (errors.budgetMin) setErrors({ ...errors, budgetMin: "" });
+                          }}
+                          className={errors.budgetMin ? "border-red-500" : ""}
+                          disabled={isLoading}
+                        />
+                        {errors.budgetMin && (
+                          <p className="text-sm text-red-500">{errors.budgetMin}</p>
                         )}
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="budgetMax">До (₽)</Label>
-                        <div className="relative">
-                          <Input
-                            id="budgetMax"
-                            type="number"
-                            placeholder="5000"
-                            value={budgetMax}
-                            onChange={(e) => {
-                              setBudgetMax(e.target.value);
-                              if (errors.budgetMax) setErrors({ ...errors, budgetMax: "" });
-                            }}
-                            className={errors.budgetMax ? "border-red-500 pr-10" : "pr-10"}
-                            disabled={isLoading}
-                          />
-                        </div>
+                        <Input
+                          id="budgetMax"
+                          type="number"
+                          placeholder="5000"
+                          value={budgetMax}
+                          onChange={(e) => {
+                            setBudgetMax(e.target.value);
+                            if (errors.budgetMax) setErrors({ ...errors, budgetMax: "" });
+                          }}
+                          className={errors.budgetMax ? "border-red-500" : ""}
+                          disabled={isLoading}
+                        />
                         {errors.budgetMax && (
                           <p className="text-sm text-red-500">{errors.budgetMax}</p>
                         )}
                       </div>
                     </div>
+                  ) : budgetType === "hourly" ? (
+                    <div className="space-y-2">
+                      <Label htmlFor="hourlyRate">Стоимость за час (₽)</Label>
+                      <Input
+                        id="hourlyRate"
+                        type="number"
+                        placeholder="500"
+                        value={hourlyRate}
+                        onChange={(e) => {
+                          setHourlyRate(e.target.value);
+                          if (errors.hourlyRate) setErrors({ ...errors, hourlyRate: "" });
+                        }}
+                        className={errors.hourlyRate ? "border-red-500" : ""}
+                        disabled={isLoading}
+                      />
+                      {errors.hourlyRate && (
+                        <p className="text-sm text-red-500">{errors.hourlyRate}</p>
+                      )}
+                    </div>
                   ) : (
                     <div className="space-y-2">
-                      <Label htmlFor="budgetAmount">
-                        {budgetType === "hourly" ? "Стоимость за час (₽)" : "Бюджет (₽)"}
-                      </Label>
-                      <div className="relative">
-                        <Input
-                          id="budgetAmount"
-                          type="number"
-                          placeholder={budgetType === "hourly" ? "500" : "3000"}
-                          value={budgetAmount}
-                          onChange={(e) => {
-                            setBudgetAmount(e.target.value);
-                            if (errors.budgetAmount) setErrors({ ...errors, budgetAmount: "" });
-                          }}
-                          className={errors.budgetAmount ? "border-red-500 pr-10" : "pr-10"}
-                          disabled={isLoading}
-                        />
-                      </div>
-                      {errors.budgetAmount && (
-                        <p className="text-sm text-red-500">{errors.budgetAmount}</p>
+                      <Label htmlFor="budgetMin">Бюджет (₽)</Label>
+                      <Input
+                        id="budgetMin"
+                        type="number"
+                        placeholder="3000"
+                        value={budgetMin}
+                        onChange={(e) => {
+                          setBudgetMin(e.target.value);
+                          if (errors.budgetMin) setErrors({ ...errors, budgetMin: "" });
+                        }}
+                        className={errors.budgetMin ? "border-red-500" : ""}
+                        disabled={isLoading}
+                      />
+                      {errors.budgetMin && (
+                        <p className="text-sm text-red-500">{errors.budgetMin}</p>
                       )}
                     </div>
                   )}
