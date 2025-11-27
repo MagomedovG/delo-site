@@ -300,7 +300,7 @@ export function CreateTask({ onBack, onSubmit }: CreateTaskProps) {
       "more-horizontal": "⋯"
     };
     return iconMap[iconName] || "📝";
-  };
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

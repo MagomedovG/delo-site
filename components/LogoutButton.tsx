@@ -48,7 +48,7 @@ export default function LogoutButton() {
     };
 
     return (
-        <Button variant="ghost" size="sm" onClick={logOut}>
+        <Button className="cursor-pointer" variant="ghost" size="sm" onClick={logOut}>
             Выйти
         </Button>
     );

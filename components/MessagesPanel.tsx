@@ -11,7 +11,7 @@ export default function MessagesPanel() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  if (pathname === "/" || pathname === "/login" || pathname === "/register") return null
+  if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname.includes("/home/messages"))  return null
 
   return (
     <div className="fixed flex flex-col items-end gap-6 bottom-0 right-4 z-50">

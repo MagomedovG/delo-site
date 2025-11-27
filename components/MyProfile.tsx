@@ -155,7 +155,7 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
 
     try {
       // Здесь нужно заменить на ваш реальный endpoint для получения задач пользователя
-      const response = await authFetch(`/tasks/my-tasks`, {
+      const response = await authFetch(`/tasks/my`, {
         method: "GET",
       });
 
@@ -224,8 +224,8 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
       try {
         await Promise.all([
           fetchUserData(),
-          // fetchMyTasks(),
-          // fetchMyOffers(),
+          fetchMyTasks(),
+          fetchMyOffers(),
           // fetchMyReviews()
         ]);
       } catch (err) {

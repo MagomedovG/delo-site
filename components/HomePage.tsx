@@ -20,6 +20,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import LogoutButton from "./LogoutButton";
+import MainHeader from "./MainHeader";
 
 interface Category {
   id: string;
@@ -145,26 +146,7 @@ export function HomePage({
   return (
     <div className="bg-gray-50">
       {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <Link href="/">
-              <h1 className="text-2xl font-semibold text-blue-600">Delo</h1>
-            </Link>
-            <div className="flex gap-2">
-              {onViewOffers && (
-                <Button variant="outline" size="sm" onClick={onViewOffers}>
-                  Отклики
-                </Button>
-              )}
-              <Button variant="ghost" size="sm" onClick={onViewProfile}>
-                Профиль
-              </Button>
-              <LogoutButton/>
-            </div>
-          </div>
-
-          {/* Search */}
+      <MainHeader>
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <Input
@@ -176,8 +158,7 @@ export function HomePage({
               disabled={loading}
             />
           </div>
-        </div>
-      </header>
+      </MainHeader>
 
       {/* Main */}
       <main className="max-w-7xl mx-auto px-4 py-8">

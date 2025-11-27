@@ -8,7 +8,6 @@ export default function LoginPage() {
   const { setIsAuthenticated, setCurrentUserId } = useApp();
 
   const handleLogin = (email: string, password: string, hasCompletedOnboarding:boolean, currentUserId:string) => {
-    // console.log("Login:", { email, password });
     setIsAuthenticated(true);
     setCurrentUserId(currentUserId)
     if (hasCompletedOnboarding){
