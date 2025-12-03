@@ -7,6 +7,7 @@ import { Label } from "./ui/label";
 import { Checkbox } from "./ui/checkbox";
 import { Eye, EyeOff, UserPlus } from "lucide-react";
 import { useAuthFetchWithBase } from "@/hooks/useAuthFetchWithBase";
+import Logo from "./Logo";
 
 interface RegisterProps {
   onRegister: (name: string, email: string, password: string) => void;
@@ -158,10 +159,12 @@ export function Register({ onRegister, onGoToLogin }: RegisterProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Logo */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl text-blue-600">Delo</h1>
+        
+        <div className="flex items-center flex-col justify-center gap-6 text-center space-y-2">
+          <Logo/>
           <p className="text-gray-600">
-            Создайте аккаунт и начните работать
+          Создайте аккаунт и начните работать
+
           </p>
         </div>
 

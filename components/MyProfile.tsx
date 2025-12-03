@@ -567,7 +567,7 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
 
             {/* Offers Tab */}
             <TabsContent value="offers" className="space-y-3">
-              {myOffers.map((offer) => (
+              {myOffers?.length > 0 &&  myOffers?.map((offer) => (
                 <Card key={offer.id} className="p-5">
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">

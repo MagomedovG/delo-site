@@ -11,15 +11,15 @@ export default function MessagesPanel() {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
-  if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname.includes("/home/messages"))  return null
+  if (pathname === "/" || pathname === "/login" || pathname === "/register" || pathname.includes("/home/messages") || pathname.includes("/admin"))  return null
 
   return (
-    <div className="fixed flex flex-col items-end gap-6 bottom-0 right-4 z-50">
+    <div className=" fixed flex flex-col items-end  bottom-0 right-4 z-50">
        {pathname !== "/create-task" && <div className="">
             <Button
             onClick={() => router.push("/create-task")}
             size="lg"
-            className="h-14 px-6 bg-blue-600 hover:bg-blue-700 shadow-xl rounded-full flex items-center gap-2"
+            className="mb-6 h-14 px-6 bg-blue-600 hover:bg-blue-700 shadow-xl rounded-full flex items-center gap-2"
             >
             <Plus className="h-5 w-5" />
             Создать задачу
@@ -28,7 +28,7 @@ export default function MessagesPanel() {
         <motion.div
             initial={false}
             animate={{ height: open ? "50vh" : "48px", width: open ? "320px" : "280px" }}
-            className="bg-white border-blue-600 border border-b-0 shadow-xl rounded-tl-2xl rounded-tr-2xl overflow-hidden flex flex-col"
+            className="hidden md:flex bg-white border-blue-600 border border-b-0 shadow-xl rounded-tl-2xl rounded-tr-2xl overflow-hidden flex-col"
         >
             <div
                 className="flex items-center justify-between px-4 h-12 bg-gray-100 cursor-pointer select-none"

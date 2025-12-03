@@ -358,7 +358,7 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
                 <div>
                   <p className="text-sm text-gray-600">Бюджет</p>
                   <p className="text-xl text-blue-600">
-                    ₽{task.budgetMin.toLocaleString()} - ₽{task.budgetMax.toLocaleString()}
+                    ₽{task?.budgetMin?.toLocaleString()} - ₽{task?.budgetMax?.toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-500">диапазон цен</p>
                 </div>

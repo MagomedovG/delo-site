@@ -6,6 +6,7 @@ import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Checkbox } from "./ui/checkbox";
 import { Eye, EyeOff, LogIn } from "lucide-react";
+import Logo from "./Logo";
 interface LoginProps {
   onLogin: (email: string, password: string, hasCompletedOnboarding:boolean, currentUserId:string) => void;
   onGoToRegister: () => void;
@@ -134,8 +135,8 @@ export function Login({ onLogin, onGoToRegister }: LoginProps) {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         {/* Logo */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl text-blue-600">Delo</h1>
+        <div className="flex items-center flex-col justify-center gap-6 text-center space-y-2">
+          <Logo/>
           <p className="text-gray-600">
             Платформа для публикации задач и поиска работы
           </p>
