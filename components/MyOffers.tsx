@@ -227,7 +227,7 @@ export function MyOffers({ userRole, onBack, onTaskClick }: MyOffersProps) {
 
         <div className="space-y-4">
           {/* Фильтры */}
-          <div className="flex items-center gap-2">
+          {/* <div className="flex items-center gap-2">
             <Tabs value={filter} onValueChange={(value: any) => setFilter(value)} className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="all">Все ({pagination.total})</TabsTrigger>
@@ -242,7 +242,7 @@ export function MyOffers({ userRole, onBack, onTaskClick }: MyOffersProps) {
                 </TabsTrigger>
               </TabsList>
             </Tabs>
-          </div>
+          </div> */}
 
           {/* Список откликов */}
           {loading ? (
@@ -275,13 +275,13 @@ export function MyOffers({ userRole, onBack, onTaskClick }: MyOffersProps) {
                       <div className="flex-1">
                         <h3 
                           className="text-lg mb-1 cursor-pointer hover:text-blue-600"
-                          onClick={() => onTaskClick(offer.task.id)}
+                          onClick={() => onTaskClick(offer?.task_id)}
                         >
-                          {offer.task.title}
+                          {offer?.task_title}
                         </h3>
-                        <Badge variant="outline" className="text-xs">
-                          {offer.task.category}
-                        </Badge>
+                        <p className="text-xs max-w-[90%]">
+                          {offer?.message}
+                        </p>
                       </div>
                       {getOfferStatusBadge(offer.status)}
                     </div>
@@ -290,12 +290,12 @@ export function MyOffers({ userRole, onBack, onTaskClick }: MyOffersProps) {
                     <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
                       <div className="flex items-center gap-1">
                         <MapPin className="h-4 w-4" />
-                        <span>{offer.task.location}</span>
+                        <span>{offer?.task?.location}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Calendar className="h-4 w-4" />
                         <span>
-                          {new Date(offer.task.deadline).toLocaleDateString("ru-RU", {
+                          {new Date(offer?.task?.deadline).toLocaleDateString("ru-RU", {
                             day: "numeric",
                             month: "short"
                           })}
@@ -303,7 +303,7 @@ export function MyOffers({ userRole, onBack, onTaskClick }: MyOffersProps) {
                       </div>
                       <div className="flex items-center gap-1">
                         <User className="h-4 w-4" />
-                        <span>{offer.task.author.name}</span>
+                        <span>{offer?.task_author_name}</span>
                       </div>
                     </div>
 
@@ -311,20 +311,23 @@ export function MyOffers({ userRole, onBack, onTaskClick }: MyOffersProps) {
                     <div className="bg-blue-50 rounded-lg p-3 space-y-2">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">Ваше предложение:</span>
-                        <span className="text-lg text-blue-600">₽{offer.myPrice.toLocaleString()}</span>
+                        <div className="flex flex-col">
+                          <span className="text-lg text-blue-600">₽ {offer?.price?.toLocaleString()}</span>
+                          <span className="text-sm text-gray-600">за {offer?.estimated_time}</span>
+                        </div>
                       </div>
                       {offer.myDescription && (
-                        <p className="text-sm text-gray-700">{offer.myDescription}</p>
+                        <p className="text-sm text-gray-700">{offer?.myDescription}</p>
                       )}
                     </div>
 
                     {/* Footer */}
                     <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">{formatDate(offer.createdAt)}</span>
+                      <span className="text-gray-500">{formatDate(offer?.created_at)}</span>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => onTaskClick(offer.task.id)}
+                        onClick={() => onTaskClick(offer?.task_id)}
                       >
                         <MessageCircle className="h-4 w-4 mr-1" />
                         Открыть задачу

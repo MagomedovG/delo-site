@@ -184,7 +184,7 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
       if (response.ok) {
         const data: OffersResponse = await response.json();
         if (data.success) {
-          setMyOffers(data.data);
+          setMyOffers(data?.data?.offers);
         }
       }
     } catch (err) {
@@ -482,7 +482,7 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
                 <Briefcase className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl">{myOffers.length}</p>
+                <p className="text-2xl">{myOffers?.length}</p>
                 <p className="text-sm text-gray-600">Мои отклики</p>
               </div>
             </div>
@@ -509,7 +509,7 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
                 Мои задачи ({myTasks.length})
               </TabsTrigger>
               <TabsTrigger value="offers">
-                Мои отклики ({myOffers.length})
+                Мои отклики ({myOffers?.length})
               </TabsTrigger>
               <TabsTrigger value="reviews">
                 Отзывы ({myReviews.length})
@@ -572,28 +572,30 @@ export function MyProfile({ onBack, onEditProfile, onTaskClick }: MyProfileProps
                   <div className="space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex-1">
-                        <h3 className="text-lg mb-1">{offer.taskTitle}</h3>
-                        <Badge variant="outline" className="text-xs">
-                          {offer.taskCategory}
-                        </Badge>
+                        <h3 className="text-lg mb-1">{offer?.task_title}</h3>
+                        <p className="text-xs max-w-[90%]">
+                          {offer?.message}
+                        </p>
                       </div>
-                      {getOfferStatusBadge(offer.status)}
+                      {getOfferStatusBadge(offer?.status)}
                     </div>
 
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-1 text-blue-600">
-                        <DollarSign className="h-4 w-4" />
-                        <span className="text-lg">₽{offer.myPrice.toLocaleString()}</span>
+                      <div className="flex flex-col">
+                          <span className="text-lg text-blue-600">{offer?.price?.toLocaleString()} руб.</span>
+                          <span className="text-sm text-gray-600">за {offer?.estimated_time}</span>
+                        </div>
                       </div>
                       <span className="text-sm text-gray-500">
-                        {formatDate(offer.createdAt)}
+                        {formatDate(offer.created_at)}
                       </span>
                     </div>
                   </div>
                 </Card>
               ))}
 
-              {myOffers.length === 0 && (
+              {myOffers?.length === 0 && (
                 <div className="text-center py-8 text-gray-500">
                   У вас пока нет откликов
                 </div>

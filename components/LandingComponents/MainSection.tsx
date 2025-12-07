@@ -10,6 +10,7 @@ import {
   Wallet,
   TrendingUp
 } from "lucide-react";
+import Logo from "../Logo";
 
 export default function MainSection() {
   return (
@@ -18,8 +19,8 @@ export default function MainSection() {
       <header className="w-full border-b border-gray-200 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-4">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-blue-600 rounded-lg" />
-            <span className="text-lg font-semibold">DELO</span>
+            {/* <div className="w-8 h-8 bg-blue-600 rounded-lg" /> */}
+            <Logo size={60}/>
           </div>
           <div className="flex items-center gap-4 text-sm">
             <Link href="/login" className="hover:opacity-70">Вход</Link>
@@ -52,7 +53,7 @@ export default function MainSection() {
         </div>
 
         {/* Right Card */}
-        <div className="flex justify-center w-full">
+        {/* <div className="flex justify-center w-full">
           <div className="bg-blue-600 hover:bg-blue-700 shadow-2xl rounded-3xl p-6 w-full ">
             <div className="flex gap-4 border rounded-2xl p-4 mb-4 bg-white">
               <div className="flex justify-center items-center">
@@ -72,7 +73,7 @@ export default function MainSection() {
               <span className="font-semibold">Выберите подходящего</span>
             </div>
           </div>
-        </div>
+        </div> */}
       </section>
 
       {/* For customers & performers */}

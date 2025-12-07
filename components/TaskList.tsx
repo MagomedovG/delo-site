@@ -133,9 +133,9 @@ export function TaskList({ categoryId, categoryName, onBack, onTaskClick }: Task
           setTasks(data.data.tasks);
         }
         
-        setTotalTasks(data.data.total);
-        setTotalPages(data.data.totalPages);
-        setHasMore(page < data.data.totalPages);
+        setTotalTasks(data.data.pagination.total);
+        setTotalPages(data.data.pagination.totalPages);
+        setHasMore(page < data.data.pagination.totalPages);
       } else {
         throw new Error("Не удалось загрузить задачи");
       }
@@ -202,31 +202,29 @@ export function TaskList({ categoryId, categoryName, onBack, onTaskClick }: Task
   };
 
   const getPriceDisplay = (task: Task) => {
-    if (task.priceType === "negotiable") {
-      return "Договорная";
+    switch (task.budgetType) {
+      case "fixed":
+        return `${task.budgetMin} руб.`;
+      case "hourly":
+        return `${task.hourlyRate?.toLocaleString()} руб/час`;
+      case "range":
+        return `${task.budgetMin?.toLocaleString()} - ${task.budgetMax.toLocaleString()} руб.`;
+      case "negotiable":
+        return "Договорная";
     }
-    if (task.budgetMax && task.budgetMin && task.budgetMax !== task.budgetMin) {
-      return `₽${task.budgetMin?.toLocaleString()} - ${task.budgetMax.toLocaleString()}`;
-    }
-    if (task.priceType === "hourly") {
-      return `₽${task.price?.toLocaleString()}/час`;
-    }
-    if( task.budgetMax === task.budgetMin && task.budgetMax === task.budgetMin){
-      `₽${task.budgetMin} фикс`
-    }
-    return `₽${task.price?.toLocaleString()}`;
+    
   };
 
   const getPriceTypeText = (task: Task) => {
-    switch (task.priceType) {
+    switch (task.budgetType) {
       case "fixed":
         return "за задание";
       case "hourly":
-        return "в час";
+        return "почасовая оплата";
       case "range":
         return "диапазон";
       case "negotiable":
-        return "договорная";
+        return "цена обговаривается";
     }
   };
 
@@ -259,9 +257,8 @@ export function TaskList({ categoryId, categoryName, onBack, onTaskClick }: Task
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto px-4 py-4">
+      <section className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="w-full px-4 py-4">
           <div className="flex items-center gap-3 mb-3">
             <Button variant="ghost" size="sm" onClick={onBack}>
               <ArrowLeft className="h-5 w-5" />
@@ -341,7 +338,7 @@ export function TaskList({ categoryId, categoryName, onBack, onTaskClick }: Task
             )}
           </div>
         </div>
-      </header>
+      </section>
 
       {/* Task List */}
       <main className="max-w-7xl mx-auto px-4 py-6">
@@ -402,7 +399,7 @@ export function TaskList({ categoryId, categoryName, onBack, onTaskClick }: Task
                         <span>{task.offersCount} откликов</span>
                       </div>
                       <div className="flex items-center gap-1 text-xs">
-                        <Calendar className="h-3 w-3" />
+                        <Calendar className="h-4 w-4" />
                         <span>
                           {new Date(task.createdAt).toLocaleDateString("ru-RU", {
                             day: "numeric",

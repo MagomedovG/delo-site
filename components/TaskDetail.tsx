@@ -64,7 +64,7 @@ interface OfferResponse {
     taskerId: string;
     price: number;
     description: string;
-    estimatedTime: string;
+    estimated_time: string;
     status: "pending";
     createdAt: string;
   };
@@ -199,7 +199,7 @@ export function TaskDetail({ taskId, currentUserId, onBack }: TaskDetailProps) {
         body: JSON.stringify({
           price: parseInt(offerPrice),
           description: offerDescription.trim(),
-          estimatedTime: offerTime.trim()
+          estimated_time: offerTime.trim()
         })
       });
 
